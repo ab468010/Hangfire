@@ -88,6 +88,7 @@ namespace Hangfire.Server
             using (shutdownToken.Register(HandleShutdownSignal))
             using (restartCts.Token.Register(HandleRestartSignal))
             {
+                //服务器上下文
                 var context = new BackgroundServerContext(
                     serverId,
                     _storage,
@@ -98,10 +99,12 @@ namespace Hangfire.Server
 
                 var dispatchers = new List<IBackgroundDispatcher>();
 
+                //告知Storage服务器已被创建，同时加入WatchServer
                 CreateServer(context);
 
                 try
                 {
+                    //心跳检查
                     // ReSharper disable once AccessToDisposedClosure
                     using (var heartbeat = CreateHeartbeatProcess(context, () => restartCts.Cancel()))
                     {
@@ -189,6 +192,7 @@ namespace Hangfire.Server
 
             var stopwatch = Stopwatch.StartNew();
 
+            //告知IStorage服务器
             using (var connection = _storage.GetConnection())
             {
                 connection.AnnounceServer(context.ServerId, GetServerContext(_properties));

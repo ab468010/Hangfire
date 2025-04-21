@@ -113,6 +113,7 @@ namespace Hangfire.Server
 
         private object PerformJobWithFilters(PerformContext context, JobFilterInfo.FilterCollection<IServerFilter> filters)
         {
+            //执行前Context
             var preContext = new PerformingContext(context);
             var enumerator = filters.GetEnumerator();
 

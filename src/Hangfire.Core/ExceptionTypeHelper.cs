@@ -24,6 +24,7 @@ namespace Hangfire
 #endif
         private static readonly Type OutOfMemoryType = typeof(OutOfMemoryException);
  
+        //只要不为StackOverflow和内存溢出，都可以捕获
         internal static bool IsCatchableExceptionType(this Exception e)
         {
             var type = e.GetType();

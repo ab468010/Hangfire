@@ -426,10 +426,13 @@ namespace Hangfire.Common
             {
                 throw new ArgumentException("Expression body should be of type `MethodCallExpression`", nameof(methodCall));
             }
-
+            //拿到调用方法的类型,比如Console.WriteLine("123"),这里就是拿到Console
             var type = explicitType ?? callExpression.Method.DeclaringType;
+            //拿到调用的方法，这里是拿到WriteLine
             var method = callExpression.Method;
 
+            //如果发现表达式本身还引入了对象实例，就通过下列代码解析是那个具体的类型和方法
+            //比如 new TestMethod().WriteLine("123"),这里的new TestMethod()就是对应的实例，也有可能是外部传入的
             if (explicitType == null && callExpression.Object != null)
             {
                 // Creating a job that is based on a scope variable. We should infer its
@@ -454,6 +457,7 @@ namespace Hangfire.Common
                     callExpression.Method.GetParameters().Select(static x => x.ParameterType).ToArray());
             }
 
+            //分析出类型、方法、所有调用方法的参数值
             return new Job(
                 // ReSharper disable once AssignNullToNotNullAttribute
                 type,

@@ -26,10 +26,11 @@ namespace ConsoleSample
                 .UseJobDetailsRenderer(10, dto => throw new InvalidOperationException())
                 .UseJobDetailsRenderer(10, dto => new NonEscapedString("<h4>Hello, world!</h4>"))
                 .UseDefaultCulture(CultureInfo.CurrentCulture)
-                .UseSqlServerStorage(@"Server=.\;Database=Hangfire.Sample;Trusted_Connection=True;", new SqlServerStorageOptions
-                {
-                    EnableHeavyMigrations = true
-                });
+                .UseInMemoryStorage();
+                //.UseSqlServerStorage(@"Server=.\;Database=Hangfire.Sample;Trusted_Connection=True;", new SqlServerStorageOptions
+                // {
+                //     EnableHeavyMigrations = true
+                // });
 
             Console.WriteLine(SerializationHelper.Serialize(new ExceptionInfo(new OperationCanceledException()), SerializationOption.Internal));
 
@@ -39,6 +40,8 @@ namespace ConsoleSample
             NewFeatures.Test(throwException: false);
             NewFeatures.Test(throwException: true);
 
+            BackgroundJob.Schedule<Services>(x=>x.WriteBlankLine(), TimeSpan.FromSeconds(5));
+            
             var job1 = BackgroundJob.Enqueue<Services>(x => x.WriteIndex(0));
             var job2 = BackgroundJob.ContinueJobWith<Services>(job1, "default",  x => x.WriteIndex(default));
             var job3 = BackgroundJob.ContinueJobWith<Services>(job2, "critical", x => x.WriteIndex(default));

@@ -105,6 +105,7 @@ namespace Hangfire
 
             var processes = new List<IBackgroundProcessDispatcherBuilder>();
             processes.AddRange(GetRequiredProcesses(filterProvider, activator, factory, performer, stateChanger));
+            //常规情况下additionalProcesses是个Empty枚举集合
             processes.AddRange(additionalProcesses.Select(static x => x.UseBackgroundPool(1)));
 
             var properties = new Dictionary<string, object>
@@ -123,6 +124,7 @@ namespace Hangfire
                 $"    Shutdown timeout: {options.ShutdownTimeout}\r\n" +
                 $"    Schedule polling interval: {options.SchedulePollingInterval}");
 
+            //检查命名错误的队列名
             var wrongQueues = new HashSet<string>(StringComparer.Ordinal);
             foreach (var queue in options.Queues)
             {
@@ -209,8 +211,10 @@ namespace Hangfire
                 if (stateChanger == null) throw new ArgumentNullException(nameof(stateChanger));
             }
 
+            
             processes.Add(new Worker(_options.Queues, performer, stateChanger).UseBackgroundPool(_options.WorkerCount, _options.WorkerThreadConfigurationAction));
 
+            //正常情况下这个代码会进去（除非配置了LightweightServer)
             if (!_options.IsLightweightServer)
             {
                 processes.Add(

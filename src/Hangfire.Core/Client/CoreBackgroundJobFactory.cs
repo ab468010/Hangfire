@@ -54,6 +54,7 @@ namespace Hangfire.Client
             set { lock (_syncRoot) { _retryDelayFunc = value; } }
         }
 
+        //本质上是持久化创建
         public BackgroundJob Create(CreateContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
@@ -63,6 +64,7 @@ namespace Hangfire.Client
                 throw new NotSupportedException("Current storage doesn't support specifying queues directly for a specific job. Please use the QueueAttribute instead.");
             }
 
+            //这里是把Job里的参数序列化好
             var parameters = context.Parameters.ToDictionary(
                 static x => x.Key,
                 static x => SerializationHelper.Serialize(x.Value, SerializationOption.User));
@@ -75,6 +77,7 @@ namespace Hangfire.Client
 
         private BackgroundJob CreateBackgroundJobTwoSteps(CreateContext context, Dictionary<string, string> parameters, DateTime createdAt, TimeSpan expireIn)
         {
+            //重试次数
             var attemptsLeft = Math.Max(RetryAttempts, 0);
 
             // Retry may cause multiple background jobs to be created, especially when there's
@@ -149,6 +152,7 @@ namespace Hangfire.Client
             }, new KeyValuePair<Action<int, TContext>, TContext>(action, context));
         }
 
+        //重试
         private TResult RetryOnException<TContext, TResult>(ref int attemptsLeft, Func<int, TContext, TResult> action, TContext context)
         {
             List<Exception> exceptions = null;
@@ -159,6 +163,7 @@ namespace Hangfire.Client
             {
                 try
                 {
+                    //这里可能出问题
                     if (delay > TimeSpan.Zero)
                     {
                         Thread.Sleep(delay);
@@ -176,6 +181,7 @@ namespace Hangfire.Client
 
             if (exceptions.Count == 1)
             {
+                //异常抛出
                 ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
             }
 

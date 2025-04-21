@@ -97,6 +97,7 @@ namespace Hangfire.Processing
         {
             try
             {
+                //_action是_process.Execute(executionId, (BackgroundExecution)state, _stoppingCts.Token, _stoppedCts.Token, _shutdownCts.Token);
                 _execution.Run(_action, _state);
             }
             catch (Exception ex) when (ex.IsCatchableExceptionType())
@@ -121,6 +122,7 @@ namespace Hangfire.Processing
             {
                 try
                 {
+                    //如果运行完，就CountDownEvent-1
                     _stopped.Signal();
                 }
                 catch (ObjectDisposedException)

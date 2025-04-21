@@ -53,20 +53,25 @@ namespace Hangfire.Common
 
             var methodCandidates = new List<MethodInfo>(type.GetRuntimeMethods());
 
+            //实际上如果type是接口类型的话，调用到的方法也应该只是接口里公布的
             if (type.GetTypeInfo().IsInterface)
             {
+                //如果是接口就找到所有实现，并且拿到所有方法
                 methodCandidates.AddRange(type.GetTypeInfo()
                     .ImplementedInterfaces.SelectMany(static x => x.GetRuntimeMethods()));
             }
 
             foreach (var methodCandidate in methodCandidates)
             {
+                //匹配名称
                 if (!methodCandidate.GetNormalizedName().Equals(name, StringComparison.Ordinal))
                 {
                     continue;
                 }
 
                 var parameters = methodCandidate.GetParameters();
+                
+                //匹配参数数量
                 if (parameters.Length != parameterTypes.Length)
                 {
                     continue;
@@ -74,6 +79,7 @@ namespace Hangfire.Common
 
                 var parameterTypesMatched = true;
 
+                //获取参数里泛型参数的数量，并构建Type数组
                 var genericArguments = methodCandidate.ContainsGenericParameters
                     ? new Type[methodCandidate.GetGenericArguments().Length]
                     : null;
@@ -91,7 +97,8 @@ namespace Hangfire.Common
                         break;
                     }
                 }
-
+                
+                //如果参数匹配
                 if (parameterTypesMatched)
                 {
                     if (genericArguments != null)
@@ -129,11 +136,13 @@ namespace Hangfire.Common
 
         private static bool TypesMatchRecursive(TypeInfo parameterType, TypeInfo actualType, IList<Type> genericArguments)
         {
+            //如果是泛型参数
             if (parameterType.IsGenericParameter)
             {
                 var position = parameterType.GenericParameterPosition;
                 
                 // Return false if this generic parameter has been identified and it's not the same as actual type
+                //检查参数位置，找到参数对应位置的实际类型是不是跟实际类型一致
                 if (genericArguments[position] != null && genericArguments[position].GetTypeInfo() != actualType)
                 {
                     return false;

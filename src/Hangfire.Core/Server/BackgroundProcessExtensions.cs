@@ -55,6 +55,8 @@ namespace Hangfire.Server
             [NotNull] this IBackgroundProcess process,
             [NotNull] Func<string, ThreadStart, IEnumerable<Thread>> threadFactory)
         {
+            //默认情况下 threadCount = 1
+            //(threadName, threadStart) => DefaultThreadFactory(threadCount, threadName, threadStart, threadConfig))
             if (process == null) throw new ArgumentNullException(nameof(process));
             if (threadFactory == null) throw new ArgumentNullException(nameof(threadFactory));
 
@@ -141,6 +143,7 @@ namespace Hangfire.Server
             if (threadStart == null) throw new ArgumentNullException(nameof(threadStart));
             if (threadCount <= 0) throw new ArgumentOutOfRangeException(nameof(threadCount));
 
+            //返回线程集合
             for (var i = 0; i < threadCount; i++)
             {
                 var thread = new Thread(threadStart)

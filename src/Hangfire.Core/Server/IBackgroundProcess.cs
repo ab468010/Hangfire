@@ -35,10 +35,10 @@ namespace Hangfire.Server
     public interface IBackgroundProcess : IServerProcess
     {
         /// <summary>
-        /// 
+        /// Executes the background process with the provided context.
         /// </summary>
-        /// <param name="context">Context for a background process.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="context"/> is null.</exception>
+        /// <param name="context">The context for a background process, which cannot be null.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the <paramref name="context"/> is null.</exception>
         void Execute([NotNull] BackgroundProcessContext context);
     }
 }

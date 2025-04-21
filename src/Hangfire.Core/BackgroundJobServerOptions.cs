@@ -58,8 +58,8 @@ namespace Hangfire
         public string ServerName { get; set; }
 
         /// <summary>
-        /// Gets or sets whether storage instance will include only <see cref="Worker"/> and required
-        /// <see cref="ServerWatchdog"/> and <see cref="ServerJobCancellationWatcher"/> processes. No
+        /// Gets or sets whether storall include only <see cref="Worker"/> and required
+                                              /// <see cref="ServerWatchdog"/> and ge instance wi<see cref="ServerJobCancellationWatcher"/> processes. No
         /// storage-related processes or recurring/delayed job schedulers will be included.
         /// </summary>
         public bool IsLightweightServer { get; set; }

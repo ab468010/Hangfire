@@ -22,6 +22,7 @@ namespace Hangfire.Common
     {
         public static string GetNormalizedName(this MethodInfo methodInfo)
         {
+            //确保不会因为接口继承导致.后的方法无法识别的问题
             // Method names containing '.' are considered explicitly implemented interface methods
             // https://stackoverflow.com/a/17854048/1398672
             return methodInfo.Name.Contains('.') && methodInfo.IsFinal && methodInfo.IsPrivate

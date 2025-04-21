@@ -9,6 +9,7 @@ using System.Reflection;
 
 // ReSharper disable All
 
+//System.Web.Mvc/ExpressionUtil/CachedExpressionCompiler.cs 复制的微软的代码
 namespace Hangfire.Common.ExpressionUtil
 {
     [ExcludeFromCodeCoverage]
@@ -39,13 +40,14 @@ namespace Hangfire.Common.ExpressionUtil
 
             public static Func<TIn, TOut> Compile(Expression<Func<TIn, TOut>> expr)
             {
-                return CompileFromIdentityFunc(expr)
-                       ?? CompileFromConstLookup(expr)
+                return CompileFromIdentityFunc(expr) //Hangfire不会触发
+                       ?? CompileFromConstLookup(expr) //Hangfire不会触发
                        ?? CompileFromMemberAccess(expr)
-                       ?? CompileFromFingerprint(expr)
+                       ?? CompileFromFingerprint(expr) //触发的是这个
                        ?? CompileSlow(expr);
             }
 
+            //正常情况下似乎没有触发可能性
             private static Func<TIn, TOut> CompileFromConstLookup(Expression<Func<TIn, TOut>> expr)
             {
                 ConstantExpression constExpr = expr.Body as ConstantExpression;
@@ -60,6 +62,7 @@ namespace Hangfire.Common.ExpressionUtil
                 return null;
             }
 
+            //正常情况下似乎没有触发可能性
             private static Func<TIn, TOut> CompileFromIdentityFunc(Expression<Func<TIn, TOut>> expr)
             {
                 if (expr.Body == expr.Parameters[0])

@@ -36,6 +36,8 @@ namespace Hangfire.Common
 
         private static Func<object, object> Wrap(Expression arg)
         {
+            //将表达式转换为Object
+            //获取 _unused => (Object)_unused;的表达式
             var lambdaExpr = Expression.Lambda<Func<object, object>>(Expression.Convert(arg, typeof(object)), UnusedParameterExpr);
             return ExpressionUtil.CachedExpressionCompiler.Process(lambdaExpr);
         }

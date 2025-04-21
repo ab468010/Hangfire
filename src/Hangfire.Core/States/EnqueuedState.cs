@@ -223,6 +223,7 @@ namespace Hangfire.States
             };
         }
 
+        //验证QueueName，确保满足^[a-z0-9_-]+$正则，实际上是遍历字符用asc-ii检查的
         internal static bool TryValidateQueueName([NotNull] string value)
         {
             if (String.IsNullOrWhiteSpace(value))

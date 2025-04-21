@@ -32,3 +32,4 @@ namespace Hangfire.Common
         IEnumerable<JobFilter> GetFilters(Job job);
     }
 }
+

@@ -127,6 +127,7 @@ namespace Hangfire.Server
 
         public static void AddServer(string serverId)
         {
+            //添加观察服务器集合
             WatchedServers.TryAdd(serverId, new ConcurrentDictionary<ServerJobCancellationToken, object>());
         }
 

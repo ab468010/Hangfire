@@ -87,6 +87,8 @@ namespace Hangfire.Common
         {
             if (value == null) return null;
 
+            
+            //如果版本检查>=170就使用这部分代码，如果不是就使用旧代码
             if (GlobalConfiguration.HasCompatibilityLevel(CompatibilityLevel.Version_170))
             {
                 var serializerSettings = GetSerializerSettings(option);

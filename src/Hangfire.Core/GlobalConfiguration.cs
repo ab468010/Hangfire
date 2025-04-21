@@ -42,6 +42,7 @@ namespace Hangfire
             set => Volatile.Write(ref _compatibilityLevel, (int)value);
         }
 
+        //版本检查
         internal static bool HasCompatibilityLevel(CompatibilityLevel level)
         {
             return CompatibilityLevel >= level;

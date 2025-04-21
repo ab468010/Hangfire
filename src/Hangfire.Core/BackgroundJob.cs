@@ -53,6 +53,7 @@ namespace Hangfire
         private static Func<IBackgroundJobClient> _clientFactory;
         private static readonly object ClientFactoryLock = new object();
 
+        //如果传了客户端工厂，就使用客户端工厂，否则就使用默认工厂
         internal static Func<IBackgroundJobClient> ClientFactory
         {
             get

@@ -143,6 +143,9 @@ namespace Hangfire
         public string Create(Job job, IState state) => Create(job, state, null);
 
         /// <inheritdoc />
+        /// Schedule最终调用的Crete方法
+        /// Job是封装的method call
+        /// IState是抽象的状态，
         public string Create(Job job, IState state, IDictionary<string, object> parameters)
         {
             if (job == null) throw new ArgumentNullException(nameof(job));
@@ -150,9 +153,15 @@ namespace Hangfire
 
             try
             {
+                //这里是存入Job细节
                 using (var connection = _storage.GetConnection())
                 {
                     var context = new CreateContext(_storage, connection, job, state, parameters);
+                    
+                    //正常情况下这里的_factory是BackgroundJobFactory
+                    //1. 过BackgroundJobFactory，这一层是过滤器检查
+                    //过滤器检查完后，如果没有被Cancel的话，就执行下一个Factory.Create方法
+                    //2. 过BackgroundJobFactory.InnerFactory,也就是CoreBackgroundJobFactory，这一层是写入到IJobStorage里
                     var backgroundJob = _factory.Create(context);
 
                     return backgroundJob?.Id;

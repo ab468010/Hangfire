@@ -75,12 +75,14 @@ namespace Hangfire.Client
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
+            //获取所有的过滤器
             var filterInfo = GetFilters(context.Job);
 
             try
             {
                 context.Factory = this;
-
+                
+                //遍历过滤器
                 var createdContext = CreateWithFilters(context, filterInfo.ClientFilters);
                 return createdContext.BackgroundJob;
             }
@@ -111,9 +113,11 @@ namespace Hangfire.Client
             CreateContext context, 
             JobFilterInfo.FilterCollection<IClientFilter> filters)
         {
+            //创建pre Context
             var preContext = new CreatingContext(context);
             var enumerator = filters.GetEnumerator();
 
+            
             return InvokeNextClientFilter(ref enumerator, _innerFactory, context, preContext);
         }
         
@@ -128,6 +132,8 @@ namespace Hangfire.Client
                 return InvokeClientFilter(ref enumerator, innerFactory, context, preContext);
             }
 
+            //过完全部过滤器，确认未被取消就直接执行下列逻辑
+            //执行CoreBackgroundJobFactory.Create
             var backgroundJob = innerFactory.Create(context);
             return new CreatedContext(context, backgroundJob, false, null);
         }
@@ -140,11 +146,15 @@ namespace Hangfire.Client
         {
             var filter = enumerator.Current!;
 
+            //没传Profiler的情况下默认是EmptyProfiler
+            //调用IClientFilter来触发Creating事件
             preContext.Profiler.InvokeMeasured(
                 new KeyValuePair<IClientFilter, CreatingContext>(filter, preContext),
                 InvokeOnCreating,
                 static ctx => $"OnCreating for {ctx.Value.Job.Type.FullName}.{ctx.Value.Job.Method.Name}");
 
+            //过完过滤器后，检查是否有被Cancel掉
+            //如果有，就直接返回CreatedContext
             if (preContext.Canceled)
             {
                 return new CreatedContext(preContext, null, true, null);
@@ -152,6 +162,9 @@ namespace Hangfire.Client
 
             var wasError = false;
             CreatedContext postContext;
+            
+            //继续检查下一个ClientFilter
+            //直到枚举器结束才返回post Context
             try
             {
                 postContext = InvokeNextClientFilter(ref enumerator, innerFactory, context, preContext);

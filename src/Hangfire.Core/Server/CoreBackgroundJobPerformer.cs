@@ -75,6 +75,7 @@ namespace Hangfire.Server
 
         internal static void HandleJobPerformanceException(Exception exception, IJobCancellationToken cancellationToken, [CanBeNull] BackgroundJob job)
         {
+            //判断Exception是否是Job中断/时间到期导致的
             if (exception is JobAbortedException)
             {
                 // JobAbortedException exception should be thrown as-is to notify
@@ -100,6 +101,7 @@ namespace Hangfire.Server
                 throw exception;
             }
 
+            //其他异常都直接处理为任务执行异常
             // Other exceptions are wrapped with JobPerformanceException to preserve a
             // shallow stack trace without Hangfire methods.
             throw new JobPerformanceException(
@@ -268,7 +270,8 @@ namespace Hangfire.Server
             {
                 var parameter = parameters[i];
                 var argument = context.BackgroundJob.Job.Args[i];
-
+                
+                //主要是为了把cts之类的令牌传到方法里
                 var value = Substitutions.TryGetValue(parameter.ParameterType, out var substitution) 
                     ? substitution(context) 
                     : argument;
